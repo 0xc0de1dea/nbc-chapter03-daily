@@ -19,26 +19,32 @@ public class ApiResponse<T> {
     private final int code;
     private final T data;
 
+    @JsonPropertyOrder({"success", "code", "data"})
     public static <T> ApiResponse<T> ok() {
         return new ApiResponse<>(true, 200, null);
     }
 
+    @JsonPropertyOrder({"success", "code", "data"})
     public static <T> ApiResponse<T> ok(T data) {
         return new ApiResponse<>(true, 200, data);
     }
 
+    @JsonPropertyOrder({"success", "code", "data"})
     public static <T> ApiResponse<T> created(T data) {
         return new ApiResponse<>(true, 201, data);
     }
 
+    @JsonPropertyOrder({"success", "code", "data"})
     public static <T> ApiResponse<T> noContent() {
         return new ApiResponse<>(true, 204, null);
     }
 
+    @JsonPropertyOrder({"success", "code", "data"})
     public static <T> ApiResponse<T> fail(HttpStatus status, T data) {
         return new ApiResponse<>(false, status.value(), data);
     }
 
+    @JsonPropertyOrder({"success", "code", "data"})
     public static <T> ApiResponse<PageResponse<T>> ok(Page<T> page) {
         return new ApiResponse<>(true, 200, PageResponse.of(page));
     }

@@ -1,10 +1,14 @@
 package com.example.chapter03daily.domain.comment.entity;
 
 import com.example.chapter03daily.common.entity.BaseEntity;
+import com.example.chapter03daily.domain.comment.dto.DailyDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -35,5 +39,13 @@ public class Daily extends BaseEntity {
         this.content = content;
         this.author = author;
         this.password = password;
+    }
+
+    public void update(
+            String title, String content, String author
+    ) {
+        this.title = title;
+        this.content = content;
+        this.author = author;
     }
 }

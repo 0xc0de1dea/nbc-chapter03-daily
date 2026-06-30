@@ -1,9 +1,16 @@
 package com.example.chapter03daily.domain.comment.service;
 
+import com.example.chapter03daily.common.dto.ApiResponse;
+import com.example.chapter03daily.common.exception.ErrorCode;
+import com.example.chapter03daily.common.exception.ServiceException;
 import com.example.chapter03daily.domain.comment.dto.DailyDto;
 import com.example.chapter03daily.domain.comment.entity.Daily;
 import com.example.chapter03daily.domain.comment.repository.DailyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,5 +38,69 @@ public class DailyService {
                 saved.getCreatedAt(),
                 null
         );
+    }
+
+    @Transactional(readOnly = true)
+    public Page<DailyDto.Response> findAll(int page, int size) {
+        Pageable pageable = PageRequest.of(
+                page,
+                size,
+                Sort.by("modifiedAt").descending()
+        );
+
+        Page<Daily> pageDaily = dailyRepository.findAll(pageable);
+
+        Page<DailyDto.Response> pageResponse = pageDaily.map(daily ->
+                DailyDto.Response.build(
+                        daily.getTitle(),
+                        daily.getContent(),
+                        daily.getAuthor(),
+                        daily.getCreatedAt(),
+                        daily.getModifiedAt()
+                ));
+
+        return pageResponse;
+    }
+
+    @Transactional
+    public DailyDto.Response update(long id, DailyDto.Request request) {
+        Daily saved = dailyRepository.findById(id).orElseThrow(
+                () -> new ServiceException(ErrorCode.DAILY_NOT_FOUND)
+        );
+
+        if (!saved.getPassword().equals(request.getPassword())) {
+            throw new ServiceException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        String title = request.getTitle();
+        String content = request.getContent();
+        String author = request.getAuthor();
+
+        saved.update(
+                title == null ? saved.getTitle() : title,
+                content == null ? saved.getContent() : content,
+                author == null ? saved.getAuthor() : author
+        );
+
+        return DailyDto.Response.build(
+                saved.getTitle(),
+                saved.getContent(),
+                saved.getAuthor(),
+                null,
+                saved.getModifiedAt()
+        );
+    }
+
+    @Transactional
+    public void delete(long id, String password) {
+        Daily saved = dailyRepository.findById(id).orElseThrow(
+                () -> new ServiceException(ErrorCode.DAILY_NOT_FOUND)
+        );
+
+        if (!saved.getPassword().equals(password)) {
+            throw new ServiceException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        dailyRepository.deleteById(id);
     }
 }

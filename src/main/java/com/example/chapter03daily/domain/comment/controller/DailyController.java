@@ -6,17 +6,14 @@ import com.example.chapter03daily.domain.comment.service.DailyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/daily")
+@RequestMapping("/api/dailies")
 public class DailyController {
 
-    private DailyService dailyService;
+    private final DailyService dailyService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<DailyDto.Response>> create(
@@ -24,5 +21,34 @@ public class DailyController {
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.created(dailyService.create(request)));
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<ApiResponse.PageResponse<DailyDto.Response>>> findAll(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok(dailyService.findAll(page, size)));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<ApiResponse<DailyDto.Response>> update(
+            @PathVariable long id,
+            @RequestBody DailyDto.Request request
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok(dailyService.update(id, request)));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<Void>> delete(
+            @PathVariable long id,
+            @RequestParam String password
+    ) {
+        dailyService.delete(id, password);
+
+        return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                .body(ApiResponse.noContent());
     }
 }
