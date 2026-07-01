@@ -1,29 +1,25 @@
 package com.example.chapter03daily.domain.comment.entity;
 
 import com.example.chapter03daily.common.entity.BaseEntity;
-import com.example.chapter03daily.domain.comment.dto.DailyDto;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-
-import java.time.LocalDateTime;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(
-        name = "daily"
+        name = "comments"
 )
-public class Daily extends BaseEntity {
+public class Comment extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String title;
+    @Column
+    private Long dailyId;
 
     @Column(nullable = false)
     private String content;
@@ -34,18 +30,10 @@ public class Daily extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    public Daily(String title, String content, String author, String password) {
-        this.title = title;
+    public Comment(Long dailyId, String content, String author, String password) {
+        this.dailyId = dailyId;
         this.content = content;
         this.author = author;
         this.password = password;
-    }
-
-    public void update(
-            String title, String content, String author
-    ) {
-        this.title = title;
-        this.content = content;
-        this.author = author;
     }
 }

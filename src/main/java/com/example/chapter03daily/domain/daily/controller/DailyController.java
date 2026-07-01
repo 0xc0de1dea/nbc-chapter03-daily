@@ -1,8 +1,8 @@
-package com.example.chapter03daily.domain.comment.controller;
+package com.example.chapter03daily.domain.daily.controller;
 
 import com.example.chapter03daily.common.dto.ApiResponse;
-import com.example.chapter03daily.domain.comment.dto.DailyDto;
-import com.example.chapter03daily.domain.comment.service.DailyService;
+import com.example.chapter03daily.domain.daily.dto.DailyDto;
+import com.example.chapter03daily.domain.daily.service.DailyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

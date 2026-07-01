@@ -8,13 +8,13 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-public class DailyDto {
+public class CommentDto {
 
     @Getter
     @AllArgsConstructor
     public static class Request {
 
-        private String title;
+        private Long dailyId;
 
         private String content;
 
@@ -29,7 +29,7 @@ public class DailyDto {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     public static class Response {
 
-        private String title;
+        private Long dailyId;
 
         private String content;
 
@@ -40,11 +40,11 @@ public class DailyDto {
         private LocalDateTime modifiedAt;
 
         public static Response build(
-                String title, String content, String author,
+                Long dailyId, String content, String author,
                 LocalDateTime createdAt, LocalDateTime modifiedAt
         ) {
             return Response.builder()
-                    .title(title)
+                    .dailyId(dailyId)
                     .content(content)
                     .author(author)
                     .createdAt(createdAt)

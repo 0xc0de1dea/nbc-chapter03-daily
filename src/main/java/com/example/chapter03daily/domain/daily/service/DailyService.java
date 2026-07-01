@@ -1,11 +1,10 @@
-package com.example.chapter03daily.domain.comment.service;
+package com.example.chapter03daily.domain.daily.service;
 
-import com.example.chapter03daily.common.dto.ApiResponse;
 import com.example.chapter03daily.common.exception.ErrorCode;
 import com.example.chapter03daily.common.exception.ServiceException;
-import com.example.chapter03daily.domain.comment.dto.DailyDto;
-import com.example.chapter03daily.domain.comment.entity.Daily;
-import com.example.chapter03daily.domain.comment.repository.DailyRepository;
+import com.example.chapter03daily.domain.daily.dto.DailyDto;
+import com.example.chapter03daily.domain.daily.entity.Daily;
+import com.example.chapter03daily.domain.daily.repository.DailyRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -50,7 +49,7 @@ public class DailyService {
 
         Page<Daily> pageDaily = dailyRepository.findAll(pageable);
 
-        Page<DailyDto.Response> pageResponse = pageDaily.map(daily ->
+        return pageDaily.map(daily ->
                 DailyDto.Response.build(
                         daily.getTitle(),
                         daily.getContent(),
@@ -58,8 +57,6 @@ public class DailyService {
                         daily.getCreatedAt(),
                         daily.getModifiedAt()
                 ));
-
-        return pageResponse;
     }
 
     @Transactional
