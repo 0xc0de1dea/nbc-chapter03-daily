@@ -1,6 +1,7 @@
 package com.example.chapter03daily.domain.daily.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,21 +28,29 @@ public class DailyDto {
     @AllArgsConstructor
     @Builder(access = AccessLevel.PRIVATE)
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonPropertyOrder({"title", "content", "author", "createdAt", "modifiedAt"})
     public static class Response {
 
-        private String title;
+        protected String title;
 
-        private String content;
+        protected String content;
 
-        private String author;
+        protected String author;
 
-        private LocalDateTime createdAt;
+        protected LocalDateTime createdAt;
 
-        private LocalDateTime modifiedAt;
+        protected LocalDateTime modifiedAt;
+
+        public Response() {
+
+        }
 
         public static Response build(
-                String title, String content, String author,
-                LocalDateTime createdAt, LocalDateTime modifiedAt
+                String title,
+                String content,
+                String author,
+                LocalDateTime createdAt,
+                LocalDateTime modifiedAt
         ) {
             return Response.builder()
                     .title(title)

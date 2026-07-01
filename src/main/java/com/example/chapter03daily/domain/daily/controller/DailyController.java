@@ -1,6 +1,7 @@
 package com.example.chapter03daily.domain.daily.controller;
 
 import com.example.chapter03daily.common.dto.ApiResponse;
+import com.example.chapter03daily.domain.daily.dto.DailyDetailResponse;
 import com.example.chapter03daily.domain.daily.dto.DailyDto;
 import com.example.chapter03daily.domain.daily.service.DailyService;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +31,14 @@ public class DailyController {
     ) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok(dailyService.findAll(page, size)));
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ApiResponse<DailyDetailResponse>> findOne(
+            @PathVariable long id
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok(dailyService.findOne(id)));
     }
 
     @PatchMapping("/{id}")

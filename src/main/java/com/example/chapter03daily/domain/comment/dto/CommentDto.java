@@ -1,6 +1,7 @@
 package com.example.chapter03daily.domain.comment.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +28,7 @@ public class CommentDto {
     @AllArgsConstructor
     @Builder(access = AccessLevel.PRIVATE)
     @JsonInclude(JsonInclude.Include.NON_NULL)
+    @JsonPropertyOrder({"dailyId", "content", "author", "createdAt", "modifiedAt"})
     public static class Response {
 
         private Long dailyId;

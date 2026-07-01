@@ -2,6 +2,9 @@ package com.example.chapter03daily.domain.daily.service;
 
 import com.example.chapter03daily.common.exception.ErrorCode;
 import com.example.chapter03daily.common.exception.ServiceException;
+import com.example.chapter03daily.domain.comment.dto.CommentDto;
+import com.example.chapter03daily.domain.comment.entity.Comment;
+import com.example.chapter03daily.domain.daily.dto.DailyDetailResponse;
 import com.example.chapter03daily.domain.daily.dto.DailyDto;
 import com.example.chapter03daily.domain.daily.entity.Daily;
 import com.example.chapter03daily.domain.daily.repository.DailyRepository;
@@ -12,6 +15,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -57,6 +62,36 @@ public class DailyService {
                         daily.getCreatedAt(),
                         daily.getModifiedAt()
                 ));
+    }
+
+    @Transactional(readOnly = true)
+    public DailyDetailResponse findOne(long id) {
+        Daily daily = dailyRepository.findById(id)
+                .orElseThrow(
+                        () -> new ServiceException(ErrorCode.DAILY_NOT_FOUND)
+                );
+
+        List<Comment> comments = daily.getComments();
+
+        List<CommentDto.Response> commentDtos = daily.getComments()
+                .stream()
+                .map(comment -> CommentDto.Response.build(
+                        comment.getDaily().getId(),
+                        comment.getContent(),
+                        comment.getAuthor(),
+                        comment.getCreatedAt(),
+                        comment.getModifiedAt()
+                ))
+                .toList();
+
+        return DailyDetailResponse.build(
+                daily.getTitle(),
+                daily.getContent(),
+                daily.getAuthor(),
+                daily.getCreatedAt(),
+                daily.getModifiedAt(),
+                commentDtos
+        );
     }
 
     @Transactional

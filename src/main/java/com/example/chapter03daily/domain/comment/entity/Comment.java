@@ -1,6 +1,7 @@
 package com.example.chapter03daily.domain.comment.entity;
 
 import com.example.chapter03daily.common.entity.BaseEntity;
+import com.example.chapter03daily.domain.daily.entity.Daily;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,9 +19,6 @@ public class Comment extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
-    private Long dailyId;
-
     @Column(nullable = false)
     private String content;
 
@@ -30,10 +28,14 @@ public class Comment extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    public Comment(Long dailyId, String content, String author, String password) {
-        this.dailyId = dailyId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "daily_id", nullable = false)
+    private Daily daily;
+
+    public Comment(String content, String author, String password, Daily daily) {
         this.content = content;
         this.author = author;
         this.password = password;
+        this.daily = daily;
     }
 }
