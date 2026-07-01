@@ -4,6 +4,7 @@ import com.example.chapter03daily.common.dto.ApiResponse;
 import com.example.chapter03daily.domain.daily.dto.DailyDetailResponse;
 import com.example.chapter03daily.domain.daily.dto.DailyDto;
 import com.example.chapter03daily.domain.daily.service.DailyService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +19,7 @@ public class DailyController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<DailyDto.Response>> create(
-            @RequestBody DailyDto.Request request
+            @Valid @RequestBody DailyDto.Request request
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.created(dailyService.create(request)));
@@ -44,7 +45,7 @@ public class DailyController {
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<DailyDto.Response>> update(
             @PathVariable long id,
-            @RequestBody DailyDto.Request request
+            @Valid @RequestBody DailyDto.Request request
     ) {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.ok(dailyService.update(id, request)));

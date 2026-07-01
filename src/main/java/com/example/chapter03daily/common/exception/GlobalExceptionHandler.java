@@ -3,12 +3,16 @@ package com.example.chapter03daily.common.exception;
 import com.example.chapter03daily.common.dto.ApiResponse;
 import com.example.chapter03daily.common.dto.ExceptionResponse;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -28,6 +32,32 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.fail(ErrorCode.VALIDATION_ERROR.getStatus(), body));
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<ErrorResponse>> handleConstraintViolationException(
+            ConstraintViolationException ex
+    ) {
+        ConstraintViolation<?> violation = ex.getConstraintViolations()
+                .stream()
+                .findFirst()
+                .orElse(null);
+
+        String message = ex.getConstraintViolations()
+                .stream()
+                .map(ConstraintViolation::getMessage)
+                .collect(Collectors.joining(", "));
+
+        ErrorResponse body = new ErrorResponse(
+                ErrorCode.VALIDATION_ERROR.name(),
+                message
+        );
+
+        return ResponseEntity.status(ErrorCode.VALIDATION_ERROR.getStatus())
+                .body(ApiResponse.fail(
+                        ErrorCode.VALIDATION_ERROR.getStatus(),
+                        body
+                ));
+    }
+
     @ExceptionHandler(ServiceException.class)
     public ResponseEntity<ExceptionResponse> handleServiceException(
             ServiceException e, HttpServletRequest request
@@ -44,6 +74,8 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleException(
             Exception e, HttpServletRequest request
     ) {
+        System.out.println(e.getClass());
+
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(ExceptionResponse.from(
                         HttpStatus.INTERNAL_SERVER_ERROR.value(),

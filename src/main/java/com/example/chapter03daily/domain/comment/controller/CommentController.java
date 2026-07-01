@@ -3,6 +3,7 @@ package com.example.chapter03daily.domain.comment.controller;
 import com.example.chapter03daily.common.dto.ApiResponse;
 import com.example.chapter03daily.domain.comment.dto.CommentDto;
 import com.example.chapter03daily.domain.comment.service.CommentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +21,7 @@ public class CommentController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<CommentDto.Response>> create(
-            @RequestBody CommentDto.Request request
+            @Valid @RequestBody CommentDto.Request request
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.created(commentService.create(request)));

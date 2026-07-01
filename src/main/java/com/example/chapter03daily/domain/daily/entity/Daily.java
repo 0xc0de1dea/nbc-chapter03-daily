@@ -3,6 +3,9 @@ package com.example.chapter03daily.domain.daily.entity;
 import com.example.chapter03daily.common.entity.BaseEntity;
 import com.example.chapter03daily.domain.comment.entity.Comment;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,15 +25,21 @@ public class Daily extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @NotBlank(message = "일정 제목은 필수입니다.")
+    @Size(max = 30, message = "일정 제목은 최대 30자까지 입력할 수 있습니다.")
+    @Column(nullable = false, length = 30)
     private String title;
 
-    @Column(nullable = false)
+    @NotBlank(message = "일정 내용은 필수입니다.")
+    @Size(max = 200, message = "일정 내용은 최대 200자까지 입력할 수 있습니다.")
+    @Column(nullable = false, length = 200)
     private String content;
 
+    @NotBlank(message = "작성자명은 필수입니다.")
     @Column(nullable = false)
     private String author;
 
+    @NotBlank(message = "비밀번호는 필수입니다.")
     @Column(nullable = false)
     private String password;
 
