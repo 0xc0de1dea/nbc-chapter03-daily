@@ -73,7 +73,7 @@ public class DailyService {
 
         List<Comment> comments = daily.getComments();
 
-        List<CommentDto.Response> commentDtos = daily.getComments()
+        List<CommentDto.Response> commentDtoList = daily.getComments()
                 .stream()
                 .map(comment -> CommentDto.Response.build(
                         comment.getDaily().getId(),
@@ -90,7 +90,7 @@ public class DailyService {
                 daily.getAuthor(),
                 daily.getCreatedAt(),
                 daily.getModifiedAt(),
-                commentDtos
+                commentDtoList
         );
     }
 
