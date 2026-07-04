@@ -1,5 +1,6 @@
 package com.example.chapter03daily.domain.comment.service;
 
+import com.example.chapter03daily.common.config.PasswordEncoder;
 import com.example.chapter03daily.common.exception.ErrorCode;
 import com.example.chapter03daily.common.exception.ServiceException;
 import com.example.chapter03daily.domain.comment.dto.CommentDto;
@@ -17,6 +18,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final DailyRepository dailyRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public CommentDto.Response create(CommentDto.Request request) {
@@ -35,7 +37,7 @@ public class CommentService {
                 new Comment(
                         request.getContent(),
                         request.getAuthor(),
-                        request.getPassword(),
+                        passwordEncoder.encode(request.getPassword()),
                         daily
                 )
         );

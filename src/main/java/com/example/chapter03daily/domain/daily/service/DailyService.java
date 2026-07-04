@@ -1,5 +1,6 @@
 package com.example.chapter03daily.domain.daily.service;
 
+import com.example.chapter03daily.common.config.PasswordEncoder;
 import com.example.chapter03daily.common.exception.ErrorCode;
 import com.example.chapter03daily.common.exception.ServiceException;
 import com.example.chapter03daily.domain.comment.dto.CommentDto;
@@ -23,6 +24,7 @@ import java.util.List;
 public class DailyService {
 
     private final DailyRepository dailyRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public DailyDto.Response create(DailyDto.Request request) {
@@ -31,7 +33,7 @@ public class DailyService {
                         request.getTitle(),
                         request.getContent(),
                         request.getAuthor(),
-                        request.getPassword()
+                        passwordEncoder.encode(request.getPassword())
                 )
         );
 
@@ -100,7 +102,7 @@ public class DailyService {
                 () -> new ServiceException(ErrorCode.DAILY_NOT_FOUND)
         );
 
-        if (!saved.getPassword().equals(request.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), saved.getPassword())) {
             throw new ServiceException(ErrorCode.INVALID_PASSWORD);
         }
 
@@ -129,7 +131,7 @@ public class DailyService {
                 () -> new ServiceException(ErrorCode.DAILY_NOT_FOUND)
         );
 
-        if (!saved.getPassword().equals(password)) {
+        if (!passwordEncoder.matches(password, saved.getPassword())) {
             throw new ServiceException(ErrorCode.INVALID_PASSWORD);
         }
 
