@@ -40,7 +40,7 @@ public class Daily extends BaseEntity {
     private String author;
 
     @NotBlank(message = "비밀번호는 필수입니다.")
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String password;
 
     @OneToMany(
@@ -58,10 +58,9 @@ public class Daily extends BaseEntity {
     }
 
     public void update(
-            String title, String content, String author
+            String title, String content
     ) {
-        this.title = title;
-        this.content = content;
-        this.author = author;
+        this.title = title == null ? this.title : title;
+        this.content = content == null ? this.content : content;
     }
 }

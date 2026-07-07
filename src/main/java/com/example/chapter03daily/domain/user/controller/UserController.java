@@ -1,47 +1,45 @@
-package com.example.chapter03daily.domain.comment.controller;
+package com.example.chapter03daily.domain.user.controller;
 
 import com.example.chapter03daily.common.dto.ApiResponse;
-import com.example.chapter03daily.domain.comment.dto.CommentDto;
-import com.example.chapter03daily.domain.comment.service.CommentService;
+import com.example.chapter03daily.domain.user.dto.UserDto;
+import com.example.chapter03daily.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/comments")
-public class CommentController {
+@RequestMapping("/api/users")
+public class UserController {
 
-    private final CommentService commentService;
+    private final UserService userService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<CommentDto.Response>> create(
-            @Valid @RequestBody CommentDto.Request request
+    public ResponseEntity<ApiResponse<UserDto.Response>> create(
+            @Valid @RequestBody UserDto.Request request
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.created(commentService.create(request)));
+                .body(ApiResponse.created(userService.create(request)));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<List<CommentDto.Response>>> findAll(
+    public ResponseEntity<ApiResponse<UserDto.Response>> findOne(
             @PathVariable long id
     ) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok(commentService.findAll(id)));
+                .body(ApiResponse.ok(userService.findOne(id)));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ApiResponse<CommentDto.Response>> update(
+    public ResponseEntity<ApiResponse<UserDto.Response>> update(
             @PathVariable long id,
-            @Valid @RequestBody CommentDto.Request request,
+            @Valid @RequestBody UserDto.Request request,
             @RequestParam String password
     ) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok(commentService.update(id, request, password)));
+                .body(ApiResponse.ok(userService.update(id, request, password)));
     }
 
     @DeleteMapping("/{id}")
@@ -49,7 +47,7 @@ public class CommentController {
             @PathVariable long id,
             @RequestParam String password
     ) {
-        commentService.delete(id, password);
+        userService.delete(id, password);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(ApiResponse.noContent());

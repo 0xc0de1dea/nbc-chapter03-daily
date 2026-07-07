@@ -68,14 +68,12 @@ public class DailyService {
 
     @Transactional(readOnly = true)
     public DailyDetailResponse findOne(long id) {
-        Daily daily = dailyRepository.findById(id)
+        Daily saved = dailyRepository.findById(id)
                 .orElseThrow(
                         () -> new ServiceException(ErrorCode.DAILY_NOT_FOUND)
                 );
 
-        List<Comment> comments = daily.getComments();
-
-        List<CommentDto.Response> commentDtoList = daily.getComments()
+        List<CommentDto.Response> commentDtoList = saved.getComments()
                 .stream()
                 .map(comment -> CommentDto.Response.build(
                         comment.getDaily().getId(),
@@ -87,34 +85,29 @@ public class DailyService {
                 .toList();
 
         return DailyDetailResponse.build(
-                daily.getTitle(),
-                daily.getContent(),
-                daily.getAuthor(),
-                daily.getCreatedAt(),
-                daily.getModifiedAt(),
+                saved.getTitle(),
+                saved.getContent(),
+                saved.getAuthor(),
+                saved.getCreatedAt(),
+                saved.getModifiedAt(),
                 commentDtoList
         );
     }
 
     @Transactional
-    public DailyDto.Response update(long id, DailyDto.Request request) {
+    public DailyDto.Response update(long id, DailyDto.Request request, String password) {
         Daily saved = dailyRepository.findById(id).orElseThrow(
                 () -> new ServiceException(ErrorCode.DAILY_NOT_FOUND)
         );
 
-        if (!passwordEncoder.matches(request.getPassword(), saved.getPassword())) {
+        if (!passwordEncoder.matches(password, saved.getPassword())) {
             throw new ServiceException(ErrorCode.INVALID_PASSWORD);
         }
 
         String title = request.getTitle();
         String content = request.getContent();
-        String author = request.getAuthor();
 
-        saved.update(
-                title == null ? saved.getTitle() : title,
-                content == null ? saved.getContent() : content,
-                author == null ? saved.getAuthor() : author
-        );
+        saved.update(title, content);
 
         return DailyDto.Response.build(
                 saved.getTitle(),

@@ -32,7 +32,7 @@ public class Comment extends BaseEntity {
     private String author;
 
     @NotBlank(message = "비밀번호는 필수입니다.")
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String password;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -44,5 +44,9 @@ public class Comment extends BaseEntity {
         this.author = author;
         this.password = password;
         this.daily = daily;
+    }
+
+    public void update(String content) {
+        this.content = content;
     }
 }

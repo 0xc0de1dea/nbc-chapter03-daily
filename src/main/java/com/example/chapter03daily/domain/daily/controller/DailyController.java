@@ -45,10 +45,11 @@ public class DailyController {
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<DailyDto.Response>> update(
             @PathVariable long id,
-            @Valid @RequestBody DailyDto.Request request
+            @Valid @RequestBody DailyDto.Request request,
+            @RequestParam String password
     ) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok(dailyService.update(id, request)));
+                .body(ApiResponse.ok(dailyService.update(id, request, password)));
     }
 
     @DeleteMapping("/{id}")
