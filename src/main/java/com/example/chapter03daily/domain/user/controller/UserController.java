@@ -2,11 +2,14 @@ package com.example.chapter03daily.domain.user.controller;
 
 import com.example.chapter03daily.common.dto.ApiResponse;
 import com.example.chapter03daily.domain.user.dto.UserDto;
+import com.example.chapter03daily.domain.user.dto.request.LoginRequest;
 import com.example.chapter03daily.domain.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -16,13 +19,22 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<UserDto.Response>> create(
+    @PostMapping("/register")
+    public ResponseEntity<ApiResponse<UserDto.Response>> register(
             @Valid @RequestBody UserDto.Request request
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.created(userService.create(request)));
+                .body(ApiResponse.created(userService.register(request)));
     }
+
+    @GetMapping("/login")
+    public ResponseEntity<ApiResponse<String>> login(
+            @Valid @RequestBody LoginRequest request
+    ) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.ok(userService.login(request)));
+    }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<UserDto.Response>> findOne(
@@ -34,20 +46,18 @@ public class UserController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<UserDto.Response>> update(
-            @PathVariable long id,
-            @Valid @RequestBody UserDto.Request request,
-            @RequestParam String password
+            @AuthenticationPrincipal User user,
+            @Valid @RequestBody UserDto.Request request
     ) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok(userService.update(id, request, password)));
+                .body(ApiResponse.ok(userService.update(user, request)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(
-            @PathVariable long id,
-            @RequestParam String password
+            @AuthenticationPrincipal User user
     ) {
-        userService.delete(id, password);
+        userService.delete(user);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(ApiResponse.noContent());

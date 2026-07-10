@@ -1,6 +1,5 @@
 package com.example.chapter03daily.domain.comment.service;
 
-import com.example.chapter03daily.common.config.PasswordEncoder;
 import com.example.chapter03daily.common.exception.ErrorCode;
 import com.example.chapter03daily.common.exception.ServiceException;
 import com.example.chapter03daily.domain.comment.dto.CommentDto;
@@ -8,8 +7,10 @@ import com.example.chapter03daily.domain.comment.entity.Comment;
 import com.example.chapter03daily.domain.comment.repository.CommentRepository;
 import com.example.chapter03daily.domain.daily.entity.Daily;
 import com.example.chapter03daily.domain.daily.repository.DailyRepository;
+import com.example.chapter03daily.domain.user.entity.User;
 import com.example.chapter03daily.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,22 +26,24 @@ public class CommentService {
     private final UserRepository userRepository;
 
     @Transactional
-    public CommentDto.Response create(CommentDto.Request request) {
-        Daily daily = dailyRepository.findById(request.getDailyId())
+    public CommentDto.Response create(org.springframework.security.core.userdetails.User user, long id, CommentDto.Request request) {
+        String email = user.getUsername();
+
+        Daily daily = dailyRepository.findById(id)
                 .orElseThrow(
                         () -> new ServiceException(ErrorCode.DAILY_NOT_FOUND)
                 );
 
-        long count = commentRepository.countByDailyId(request.getDailyId());
+        long count = commentRepository.countByDailyId(id);
 
         if (count >= 10) {
             throw new ServiceException(ErrorCode.EXCEEDED_COMMENT);
         }
 
-        Comment saved = commentRepository.saveAndFlush(
+        Comment comment = commentRepository.saveAndFlush(
                 new Comment(
                         request.getContent(),
-                        request.getAuthor(),
+                        email,
                         passwordEncoder.encode(request.getPassword()),
                         daily
                 )
@@ -48,9 +51,9 @@ public class CommentService {
 
         return CommentDto.Response.build(
                 daily.getId(),
-                saved.getContent(),
-                saved.getAuthor(),
-                saved.getCreatedAt(),
+                comment.getContent(),
+                comment.getAuthor(),
+                comment.getCreatedAt(),
                 null
         );
     }
@@ -77,38 +80,60 @@ public class CommentService {
     }
 
     @Transactional
-    public CommentDto.Response update(long id, CommentDto.Request request, String password) {
-        Comment saved = commentRepository.findById(id)
+    public CommentDto.Response update(org.springframework.security.core.userdetails.User user, long id, CommentDto.Request request) {
+        String email = user.getUsername();
+
+        User savedUser = userRepository.findUserByEmail(email)
+                .orElseThrow(
+                        () -> new ServiceException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        Comment savedComment = commentRepository.findById(id)
                 .orElseThrow(
                         () -> new ServiceException(ErrorCode.COMMENT_NOT_FOUND)
                 );
 
-        if (!passwordEncoder.matches(password, saved.getPassword())) {
+        if (!savedUser.getEmail().equals(savedComment.getAuthor())) {
+            throw new ServiceException(ErrorCode.USER_NOT_MATCHED);
+        }
+
+        if (!passwordEncoder.matches(request.getPassword(), savedComment.getPassword())) {
             throw new ServiceException(ErrorCode.INVALID_PASSWORD);
         }
 
-        saved.update(request.getContent());
+        savedComment.update(request.getContent());
 
         return CommentDto.Response.build(
-                saved.getDaily().getId(),
-                saved.getContent(),
-                saved.getAuthor(),
-                saved.getCreatedAt(),
-                saved.getModifiedAt()
+                savedComment.getDaily().getId(),
+                savedComment.getContent(),
+                savedComment.getAuthor(),
+                savedComment.getCreatedAt(),
+                savedComment.getModifiedAt()
         );
     }
 
     @Transactional
-    public void delete(long id, String password) {
-        Comment saved = commentRepository.findById(id)
+    public void delete(org.springframework.security.core.userdetails.User user, long id, CommentDto.Request request) {
+        String email = user.getUsername();
+
+        User savedUser = userRepository.findUserByEmail(email)
+                .orElseThrow(
+                        () -> new ServiceException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        Comment savedComment = commentRepository.findById(id)
                 .orElseThrow(
                         () -> new ServiceException(ErrorCode.COMMENT_NOT_FOUND)
                 );
 
-        if (!passwordEncoder.matches(password, saved.getPassword())) {
+        if (!savedUser.getEmail().equals(savedComment.getAuthor())) {
+            throw new ServiceException(ErrorCode.USER_NOT_MATCHED);
+        }
+
+        if (!passwordEncoder.matches(request.getPassword(), savedComment.getPassword())) {
             throw new ServiceException(ErrorCode.INVALID_PASSWORD);
         }
 
-        userRepository.deleteById(id);
+        commentRepository.deleteById(id);
     }
 }

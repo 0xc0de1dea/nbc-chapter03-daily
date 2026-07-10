@@ -15,11 +15,7 @@ public class CommentDto {
     @AllArgsConstructor
     public static class Request {
 
-        private Long dailyId;
-
         private String content;
-
-        private String author;
 
         private String password;
     }

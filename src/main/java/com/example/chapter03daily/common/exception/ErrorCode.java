@@ -17,6 +17,7 @@ public enum ErrorCode {
      * User
      */
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "해당하는 유저를 찾을 수 없습니다."),
+    USER_NOT_MATCHED(HttpStatus.CONFLICT, "수정하려는 유저와 일치하지 않습니다."),
 
     /**
      * Comment

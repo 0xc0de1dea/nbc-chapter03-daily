@@ -1,5 +1,6 @@
 package com.example.chapter03daily.common.filter;
 
+import com.example.chapter03daily.common.enums.UserRoleEnum;
 import com.example.chapter03daily.common.utils.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -7,10 +8,15 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 import static com.example.chapter03daily.common.constant.MagicNumber.SEVEN;
 
@@ -28,7 +34,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String requestURL = request.getRequestURI();
 
-        if (requestURL.equals("/api/users/login")) {
+        if (requestURL.equals("/api/users/login") || requestURL.equals("/api/users/register") ) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -47,9 +53,19 @@ public class JwtFilter extends OncePerRequestFilter {
             response.getWriter().write("{\"error\": \"Unauthorized\"}");
         }
 
-        String username = jwtUtil.extractUsername(jwt);
+        String email = jwtUtil.extractEmail(jwt);
 
-        request.setAttribute("username", username);
+        String role = jwtUtil.extractRole(jwt);
+
+        UserRoleEnum roleEnum = UserRoleEnum.valueOf(role);
+
+//        request.setAttribute("username", username);
+
+        User user = new User(email, "", List.of(roleEnum::getRole));
+
+        SecurityContextHolder.getContext().setAuthentication(new UsernamePasswordAuthenticationToken(
+                user, null, user.getAuthorities()
+        ));
 
         filterChain.doFilter(request, response);
     }

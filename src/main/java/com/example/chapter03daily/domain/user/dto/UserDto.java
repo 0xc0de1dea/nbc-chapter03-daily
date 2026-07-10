@@ -1,5 +1,6 @@
 package com.example.chapter03daily.domain.user.dto;
 
+import com.example.chapter03daily.common.enums.UserRoleEnum;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.AccessLevel;
@@ -20,18 +21,22 @@ public class UserDto {
         private String email;
 
         private String password;
+
+        private UserRoleEnum role;
     }
 
     @Getter
     @AllArgsConstructor
     @Builder(access = AccessLevel.PRIVATE)
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    @JsonPropertyOrder({"name", "email", "createdAt", "modifiedAt"})
+    @JsonPropertyOrder({"name", "email", "role", "createdAt", "modifiedAt"})
     public static class Response {
 
         protected String name;
 
         protected String email;
+
+        protected UserRoleEnum role;
 
         protected LocalDateTime createdAt;
 
@@ -40,12 +45,14 @@ public class UserDto {
         public static Response build(
                 String name,
                 String email,
+                UserRoleEnum role,
                 LocalDateTime createdAt,
                 LocalDateTime modifiedAt
         ) {
             return Response.builder()
                     .name(name)
                     .email(email)
+                    .role(role)
                     .createdAt(createdAt)
                     .modifiedAt(modifiedAt)
                     .build();

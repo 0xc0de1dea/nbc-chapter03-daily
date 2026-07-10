@@ -7,6 +7,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,12 +20,14 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping
+    @PostMapping("/{id}")
     public ResponseEntity<ApiResponse<CommentDto.Response>> create(
+            @AuthenticationPrincipal User user,
+            @PathVariable long id,
             @Valid @RequestBody CommentDto.Request request
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.created(commentService.create(request)));
+                .body(ApiResponse.created(commentService.create(user, id, request)));
     }
 
     @GetMapping("/{id}")
@@ -36,20 +40,21 @@ public class CommentController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<CommentDto.Response>> update(
+            @AuthenticationPrincipal User user,
             @PathVariable long id,
-            @Valid @RequestBody CommentDto.Request request,
-            @RequestParam String password
+            @Valid @RequestBody CommentDto.Request request
     ) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok(commentService.update(id, request, password)));
+                .body(ApiResponse.ok(commentService.update(user, id, request)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(
+            @AuthenticationPrincipal User user,
             @PathVariable long id,
-            @RequestParam String password
+            @Valid @RequestBody CommentDto.Request request
     ) {
-        commentService.delete(id, password);
+        commentService.delete(user, id, request);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(ApiResponse.noContent());

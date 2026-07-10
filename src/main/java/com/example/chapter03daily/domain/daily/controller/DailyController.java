@@ -8,6 +8,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -19,10 +21,11 @@ public class DailyController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<DailyDto.Response>> create(
+            @AuthenticationPrincipal User user,
             @Valid @RequestBody DailyDto.Request request
     ) {
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.created(dailyService.create(request)));
+                .body(ApiResponse.created(dailyService.create(user, request)));
     }
 
     @GetMapping
@@ -44,20 +47,21 @@ public class DailyController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<DailyDto.Response>> update(
+            @AuthenticationPrincipal User user,
             @PathVariable long id,
-            @Valid @RequestBody DailyDto.Request request,
-            @RequestParam String password
+            @Valid @RequestBody DailyDto.Request request
     ) {
         return ResponseEntity.status(HttpStatus.OK)
-                .body(ApiResponse.ok(dailyService.update(id, request, password)));
+                .body(ApiResponse.ok(dailyService.update(user, id, request)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(
-            @PathVariable long id,
-            @RequestParam String password
+            @AuthenticationPrincipal User user,
+            @PathVariable Long id,
+            @Valid @RequestBody DailyDto.Request request
     ) {
-        dailyService.delete(id, password);
+        dailyService.delete(user, id, request);
 
         return ResponseEntity.status(HttpStatus.NO_CONTENT)
                 .body(ApiResponse.noContent());

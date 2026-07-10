@@ -19,8 +19,6 @@ public class DailyDto {
 
         private String content;
 
-        private String author;
-
         private String password;
     }
 

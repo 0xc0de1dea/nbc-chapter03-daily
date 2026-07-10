@@ -1,6 +1,7 @@
 package com.example.chapter03daily.domain.user.entity;
 
 import com.example.chapter03daily.common.entity.BaseEntity;
+import com.example.chapter03daily.common.enums.UserRoleEnum;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -28,7 +29,7 @@ public class User extends BaseEntity {
 
     @NotBlank(message = "이메일은 필수입니다.")
     @Email(message = "이메일 형식이 올바르지 않습니다.")
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String email;
 
     @NotBlank(message = "비밀번호는 필수입니다.")
@@ -36,10 +37,15 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 8, columnDefinition = "TEXT")
     private String password;
 
-    public User(String name, String email, String password) {
+    @Column(nullable = false)
+    @Enumerated(value = EnumType.STRING)
+    private UserRoleEnum roleEnum;
+
+    public User(String name, String email, String password, UserRoleEnum roleEnum) {
         this.name = name;
         this.email = email;
         this.password = password;
+        this.roleEnum = roleEnum;
     }
 
     public void update(String name, String email, String password) {

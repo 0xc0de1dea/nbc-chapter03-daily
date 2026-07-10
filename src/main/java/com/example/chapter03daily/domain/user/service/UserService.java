@@ -1,12 +1,14 @@
 package com.example.chapter03daily.domain.user.service;
 
-import com.example.chapter03daily.common.config.PasswordEncoder;
 import com.example.chapter03daily.common.exception.ErrorCode;
 import com.example.chapter03daily.common.exception.ServiceException;
+import com.example.chapter03daily.common.utils.JwtUtil;
 import com.example.chapter03daily.domain.user.dto.UserDto;
+import com.example.chapter03daily.domain.user.dto.request.LoginRequest;
 import com.example.chapter03daily.domain.user.entity.User;
 import com.example.chapter03daily.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,23 +18,43 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     @Transactional
-    public UserDto.Response create(UserDto.Request request) {
+    public UserDto.Response register(UserDto.Request request) {
         User saved = userRepository.saveAndFlush(
                 new User(
                         request.getName(),
                         request.getEmail(),
-                        passwordEncoder.encode(request.getPassword())
+                        passwordEncoder.encode(request.getPassword()),
+                        request.getRole()
                 )
         );
 
         return UserDto.Response.build(
                 saved.getName(),
                 saved.getEmail(),
+                saved.getRoleEnum(),
                 saved.getCreatedAt(),
                 null
         );
+    }
+
+    @Transactional
+    public String login(LoginRequest request) {
+        String username = request.getUsername();
+        String password = request.getPassword();
+
+        User user = userRepository.findUserByName(username)
+                .orElseThrow(
+                        () -> new ServiceException(ErrorCode.USER_NOT_FOUND)
+                );
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            throw new ServiceException(ErrorCode.INVALID_PASSWORD);
+        }
+
+        return jwtUtil.generateToken(user.getEmail(), user.getRoleEnum());
     }
 
     @Transactional(readOnly = true)
@@ -45,21 +67,20 @@ public class UserService {
         return UserDto.Response.build(
                 saved.getName(),
                 saved.getEmail(),
+                saved.getRoleEnum(),
                 saved.getCreatedAt(),
                 saved.getModifiedAt()
         );
     }
 
     @Transactional
-    public UserDto.Response update(long id, UserDto.Request request, String password) {
-        User saved = userRepository.findById(id)
-                .orElseThrow(
-                        () -> new ServiceException(ErrorCode.USER_NOT_FOUND)
-                );
+    public UserDto.Response update(org.springframework.security.core.userdetails.User user, UserDto.Request request) {
+        String email = user.getUsername();
 
-        if (!passwordEncoder.matches(password, saved.getPassword())) {
-            throw new ServiceException(ErrorCode.INVALID_PASSWORD);
-        }
+        User saved = userRepository.findUserByEmail(email)
+                        .orElseThrow(
+                                () -> new ServiceException(ErrorCode.USER_NOT_FOUND)
+                        );
 
         saved.update(
                 request.getName(),
@@ -70,22 +91,21 @@ public class UserService {
         return UserDto.Response.build(
                 saved.getName(),
                 saved.getEmail(),
+                saved.getRoleEnum(),
                 null,
                 saved.getModifiedAt()
         );
     }
 
     @Transactional
-    public void delete(long id, String password) {
-        User saved = userRepository.findById(id)
+    public void delete(org.springframework.security.core.userdetails.User user) {
+        String email = user.getUsername();
+
+        User saved = userRepository.findUserByEmail(email)
                 .orElseThrow(
                         () -> new ServiceException(ErrorCode.USER_NOT_FOUND)
                 );
 
-        if (!passwordEncoder.matches(password, saved.getPassword())) {
-            throw new ServiceException(ErrorCode.INVALID_PASSWORD);
-        }
-
-        userRepository.deleteById(id);
+        userRepository.deleteById(saved.getId());
     }
 }
