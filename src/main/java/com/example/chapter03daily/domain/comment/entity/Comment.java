@@ -9,6 +9,7 @@ import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.BatchSize;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

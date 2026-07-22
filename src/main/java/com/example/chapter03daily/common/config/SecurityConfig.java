@@ -4,6 +4,7 @@ import com.example.chapter03daily.common.filter.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -36,8 +37,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/users/register").permitAll()
                         .requestMatchers("/api/users/login").permitAll()
-                        .requestMatchers("/api/dailies/**").permitAll()
-                        .requestMatchers("/api/comments/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/users/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/dailies/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/comments/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .build();

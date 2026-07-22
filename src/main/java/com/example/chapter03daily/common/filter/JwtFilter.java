@@ -9,7 +9,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Component;
@@ -32,17 +31,10 @@ public class JwtFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String requestURL = request.getRequestURI();
-
-        if (requestURL.equals("/api/users/login") || requestURL.equals("/api/users/register") ) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         String authorizationHeader = request.getHeader(AUTH_HEADER);
 
         if (authorizationHeader == null || authorizationHeader.isBlank()) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "JWT 토큰이 필요합니다.");
+            filterChain.doFilter(request, response);
             return;
         }
 
